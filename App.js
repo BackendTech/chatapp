@@ -23,6 +23,7 @@ import {
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 let count = 1;
+const USER_NAME = Platform.OS == 'ios' ? 'GAJENDRA' : 'ATUL';
 class App extends React.Component {
   listViewRef;
   constructor(props) {
@@ -30,10 +31,8 @@ class App extends React.Component {
     this.state = {
       data: [],
     };
-    this.receiveFor = Platform.OS == 'ios' ? 'gajendra' : 'atul';
-    this.sendToEventName = Platform.OS == 'ios' ? 'atul' : 'gajendra';
 
-    this.socket = io('http://192.168.3.70:3001/');
+    this.socket = io('http://203.212.221.239:3001/');
     this.socket.on('connect', this.onConnect);
     this.socket.on('message', this.onEvent);
     this.socket.on('disconnect', this.onDisconect);
@@ -42,10 +41,10 @@ class App extends React.Component {
   onConnect = () => {
     console.log('Connected ---->');
   };
-  onEvent = (message) => {
+  onEvent = ({value, sender}) => {
     const {data} = this.state;
     this.setState({
-      data: [...data, {id: 'Id_' + count, title: message, sender: 'Sayon'}],
+      data: [...data, {id: 'Id_' + count, title: value, sender: sender}],
     });
     count++;
     this.listViewRef.scrollToEnd({animated: true});
@@ -59,7 +58,7 @@ class App extends React.Component {
     if (!value) {
       return;
     }
-    this.socket.emit('message', value);
+    this.socket.emit('message', {value: value, sender: USER_NAME});
     this.setState({
       data: [...data, {id: 'Id_' + count, title: value, sender: 'You'}],
       value: undefined,
